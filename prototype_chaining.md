@@ -8,6 +8,8 @@ Duplication of object's members. Suppose that we want to have two or more object
 var initial = { property: "property value" };
 ```
 
+There are two main strategies for solving this issue - each of them has its own semantics. So, which one to choose does depend on the specificity of the particular situation.
+
 ## Solution 1. Make deep copy of the object
 
 ```
