@@ -29,3 +29,11 @@ In this case those objects are bound - specifically, the object `inherit` is bou
 * In case of failed property lookup on `inherit` property set of the `initial` will be taken into account as a fallback.
 * The `inherit` object could effectively "override" properties of the `initial` - if any property will be redefined in `inherit`, there will be no any fallback lookups on `initial` for that specific property.
 * Any changes applied to the `original` object will effectively reflect to the `inherit` object - due to the fact of an existance of the fallback prototyping behavior.
+
+## Object prototype
+
+This is a prototype which every js object inherits from. It introduces a number of useful properties, such as:
+
+* **toString()** - is implemented in a way of utilizing `this` - thus it could "adapt" to any object on behalf of which it has been called
+* **hasOwnProperty()** - this method can be used to determine whether an object has the specified property as a direct property of that object; unlike the in operator, this method does not check down the object's prototype chain. As in the case of `toString()` method, this one is also implemented through `this`.
+* **constructor** - references a constructor function that could be used to create a new object "of the same type". Note the quotes - there is no definition of type in js, and the exact meaning of those words depends on specific idea of the developer. Nevertheless, this property should be explicitly initialized for the newly introduced object "type" by the means of overriding its value in the `inherit` object. Otherwise the `constructor` property value would still point to the `Object`'s constructor.
