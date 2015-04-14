@@ -18,7 +18,10 @@ There are several ways to invoke the function by the means of the specific objec
 
 * **`object`.`function`()** - ***left-to-the-dot rule*** - could be used if `function` is a defined property of `object`
 * **`object`\['`function`'\]()** - same as the above
-* **`function`.call(`binding-for-this`, `first-arg`, `second-arg`..)** - using a `call` method on function object. In this way the first parameter that will be passed to invocation will be bound to `this`. Note that in the following example `this` will be bound to `object2` due to the fact that `call` overrides method access rules: `object1`.`function`.call(`object2`, ..)
+* **`function`.call(`binding-for-this`, `first-arg`, `second-arg`..)** - using a `call` method on function object. In this way the first parameter that will be passed to invocation will be bound to `this`. Note that in the following example `this` will be bound to `object2` due to the fact that `call` overrides method access rules: 
+```
+object1.function.call(object2, ..)
+```
 
 ## Problem of loosing parameters' bindings
 
