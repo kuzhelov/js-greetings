@@ -37,3 +37,12 @@ This is a prototype which every js object inherits from. It introduces a number 
 * **toString()** - is implemented in a way of utilizing `this` - thus it could "adapt" to any object on behalf of which it has been called
 * **hasOwnProperty()** - this method can be used to determine whether an object has the specified property as a direct property of that object; unlike the in operator, this method does not check down the object's prototype chain. As in the case of `toString()` method, this one is also implemented through `this`.
 * **constructor** - references a constructor function that could be used to create a new object "of the same type". Note the quotes - there is no definition of type in js, and the exact meaning of those words depends on specific idea of the developer. Nevertheless, this property should be explicitly initialized for the newly introduced object "type" by the means of overriding its value in the `inherit` object. Otherwise the `constructor` property value would still point to the `Object`'s constructor.
+
+## Array prototype
+
+Extends `Object` prototype. Has a number of its own and overriden properties:
+
+- **toString()** - implements a new version that is specific for array objects
+- **constructor** - points to the `Array()` constructor function instead of original `Object()`
+- **indexOf(`element`)** - returns the first index at which a given `element` can be found in the array, or -1 if it is not present
+- **slice([`begin`, [`end`]])** - returns a shallow copy of a portion of an array into a new array object
