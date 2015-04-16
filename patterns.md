@@ -58,6 +58,8 @@ function Car(location, speed) {
   car.move = function() {
     car.location += car.speed;
   }
+  
+  return car;
 }
 ```
 
@@ -77,6 +79,8 @@ function Car(location, speed) {
   car.move = function() {
     car.location += car.speed;
   };
+  
+  return car;
 }
 ```
 
@@ -88,6 +92,8 @@ function Car(location, speed) {
   car.location = location;
   car.speed = speed;
   car.move = move;
+  
+  return car;
 }
 
 var move = function() {         // remember that compiler effectively moves variable's declaration (not the assignment though) 
@@ -102,6 +108,8 @@ function Car(location, speed) {
   var car = Object.create(Car.methods);
   car.location = location;
   car.speed = speed;
+  
+  return car;
 }
 
 Car.methods = {       // Note that Car is a function object - it is still a regular js object 
@@ -118,6 +126,8 @@ function Car(location, speed) {
   var car = Object.create(Car.prototype);
   car.location = location;
   car.speed = speed;
+  
+  return car;
 }
 
 Car.prototype = {       // Note that Car is a function object - it is still a regular js object 
@@ -145,3 +155,78 @@ Note here we have a request to the `sweety`'s prototype chain due to the fact th
 ### Operator `instanceof`
 
 **`sweety instanceof Car`** - boolean operator that tests a presence of the `Car.prototype` object in a prototype chain of the `sweety` object
+
+## Pseudoclassical pattern
+
+This pattern is very similar to the Prototypal Class pattern. The main difference is the fact that the constructor function should be invoked with a keyword `new` in the client code: 
+
+```
+var sweety = new Car();
+```
+
+So what are the benifits of these modifications? Let's consider the `Car` constructor function realization before modifications being applied: 
+
+```
+function Car(location, speed) {
+  var car = Object.create(Car.prototype); // boilerplate - object creation from a prototype
+  car.location = location;
+  car.speed = speed;
+  
+  return car; // boilerplate - return constructed object
+}
+
+Car.prototype = {       
+  move: function() {   
+    this.location += this.speed;
+  } 
+};
+```
+
+Here we can see the lines that will very quickly become a mundane work with a several more classes being defined - those lines are marked with a comments. Specifically, these lines are:
+* `var car = Object.create(Car.prototype)` - new object creation from a prototype
+* `return car` - created object returning
+
+In order to avoid such kind of duplication JS compiler provides a special mechanism that will be launched any time when a function object will be invoked with a keyword `new`. In this case the following function:
+```
+var sweety = Any();
+
+function Any() {
+  ... // actual body of the function
+}
+```
+
+will be augmented with the following very-first and very-last lines:
+
+```
+var sweety = new Any();
+
+function Any() {
+  this = Object.create(Any.prototype);
+  ... // actual body of the function
+  return this;
+}
+```
+
+### Constructor function refactoring
+
+Taking the above fact into account, we can rewrite the constructor function in the following way:
+
+```
+function Car(location, speed) {
+  this.location = location;
+  this.speed = speed;
+}
+
+Car.prototype = {       // Note that Car is a function object - it is still a regular js object 
+  move: function() {    // with a single specific feature: it can be invoked
+    this.location += this.speed;
+  } 
+};
+```
+
+### Additional notes
+
+* Now it is implied that this constructor function should be invoked with a keyword `new` for reaching a proper effect.
+* Class declaration now could be divided into two main logical parts:
+  * common similar members (in our case those are represented by methods only) are defined within a prototypal part
+  * differences are definied in constructor function itself - commonly it should deal with the parameters that were passed in the constructor
