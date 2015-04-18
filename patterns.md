@@ -230,3 +230,104 @@ Car.prototype = {       // Note that Car is a function object - it is still a re
 * Class declaration now could be divided into two main logical parts:
   * common similar members (in our case those are represented by methods only) are defined within a prototypal part
   * differences are definied in constructor function itself - commonly it should deal with the parameters that were passed in the constructor
+  
+## Pseudoclassical subclassing
+
+### Problem
+
+Let's consider the following problem: suppose we'd like to introduce a class `Van` that is a subclass of the already defined class `Car`:
+
+```
+function Car(location, speed) {
+  this.location = location;
+  this.speed = speed;
+}
+
+Car.prototype = {       
+  move: function() {   
+    this.location += this.speed;
+  } 
+};
+```
+
+So, now we have a definition of class `Car` that can be semantically splitted on two different parts:
+
+* commonalities (prototypal part)
+* differences (constructor part)
+
+### Pseudoclassical Constructor Principle
+
+While executing the logic of constructor function there should be no creation of additional object - only the object that `this` variable references should be used.
+
+### Inherit properties from the Constructor part
+
+This task could be solved in the following way:
+
+```
+function Van(location, speed) {
+  Car.call(this, location, speed);
+}
+```
+
+Here literally we would like to call the `Car` constructor function but with `this` object being referencing the newly constructed object in `Van`. As a result we will have the `location` and `speed` properties being initialized for the `Van` objects.
+
+It is worth to notice that there is an alternative realization like this one:
+
+```
+function Van(location, speed) {
+  this = new Car(this, location, speed);
+}
+```
+
+However, while solving the task it also violates the Pseudoclassical Constructor Principle - we will end up in additional object's creation:
+* the first will be created at the entry point of the `Van`: `var this = Object.create(Van.prototype); // pseudo code`
+* the second will be created via the call to the `Car` constructor
+
+### Inherit properties from the Prototypal part
+
+So long we have the realization of the `Van` constructor that is able to inherit the properties from its base class's constructor part - however, its prototypal part still remains to be under consideration.
+
+There is a common erroneous approach of solving this issue by simply assigning a `Van`'s prototype object to a `Car`'s prototype object: 
+
+```
+function Van(location, speed) {
+  this = new Car(this, location, speed);
+}
+
+Van.prototype = Car.prototype;
+```
+
+However, there are several cons of such decision:
+
+* we will end up being unable to add any additional methods that are specific only to the `Van` objects
+* `constructor` property of Van will point to the `Car`'s constructor function
+
+Lets think about a desired way of solving this task. In fact, we would like to have a `Van` instance that could have its own methods, but in case when any method of the base class will be called this object should utilize the power of the prototypal fallback mechanics. In other words, we would like to have a regular object with the following properties:
+
+* if a method that is specific to the `Van` class is called, it should be found in a `Van`'s prototype - this is our regular approach for defining class methods
+* if a method from a `Car` class is called, then it should be found by a fallback lookup to the `Car`'s prototype
+
+This requirements could be fulfilled by assigning a `Car`'s prototype to be a prototype for the `Van`'s prototype:
+
+```
+function Van(location, speed) {
+  this = new Car(this, location, speed);
+}
+
+Van.prototype = Object.create(Car.prototype);
+```
+
+As a result we can invoke any of the `Car` class methods on the objects of `Van`. Also we are able to define a `Van` specific methods on its prototype - they will be inaccessible from the `Car` objects:
+
+```
+Van.pack_with_huge_boxes = function() {
+...
+}
+```
+
+So long we still have a small problem - any created `Van` object will refer to the `Car` constructor by its `constructor` property. In order to avoid this we should add one more line of code:
+
+```
+Van.prototype = Object.create(Car.prototype);
+Van.prototype.constructor = Van;
+```
